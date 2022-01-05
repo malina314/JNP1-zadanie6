@@ -29,7 +29,7 @@ private:
 
 public:
     Rover(std::unordered_map<char, std::shared_ptr<command>> c, std::vector<std::unique_ptr<Sensor>> s) :
-        commands(std::move(c)), sensors(std::move(s)), stopped(false), landed(false) {}
+        commands(std::move(c)), sensors(std::move(s)), stopped(false), landed(false), position() {}
 
     void land(std::pair<coordinate_t, coordinate_t> coords , Direction direction) {
         if (landed)
@@ -52,7 +52,7 @@ public:
         }
     }
 
-    friend std::ostream &operator<<(std::ostream& os, const Rover& that) {
+    friend std::ostream &operator<<(std::ostream& os, const Rover &that) {
         if (!that.landed)
             return os << "unknown";
 
@@ -86,18 +86,22 @@ private:
     std::vector<std::unique_ptr<Sensor>> sensors;
 
 public:
+    RoverBuilder() = default;
+    RoverBuilder(std::unordered_map<char, std::shared_ptr<command>> c, std::vector<std::unique_ptr<Sensor>> s) :
+        commands(std::move(c)), sensors(std::move(s)) {}
+
     RoverBuilder program_command(char chr, const command &cmd) {
         commands[chr] = std::move(cmd.clone());
-        return *this;
+        return {std::move(commands), std::move(sensors)};
     }
 
     RoverBuilder add_sensor(std::unique_ptr<Sensor> sensor) {
         sensors.push_back(std::move(sensor));
-        return *this;
+        return {std::move(commands), std::move(sensors)};
     }
 
     Rover build() {
-        return {commands, sensors};
+        return {std::move(commands), std::move(sensors)};
     }
 };
 
