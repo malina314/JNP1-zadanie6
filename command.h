@@ -6,6 +6,7 @@
 #include <initializer_list>
 #include <memory>
 #include <vector>
+#include <type_traits>
 
 class command {
 public:
@@ -141,6 +142,7 @@ class compose : public command {
 
 public:
     template<typename T>
+    requires std::is_base_of_v<command, T>
     compose(const std::initializer_list<T> list) {
         for (auto cmd : list) {
             commands.push_back(cmd.clone());
