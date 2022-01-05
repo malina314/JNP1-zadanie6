@@ -10,6 +10,7 @@
 
 class command {
 public:
+    virtual ~command() = default;
     // Funkcja modyfikuje przekazaną pozycję i zwraca true, jeśli żaden z
     // czujników nie wykrył zagrożenia, w przeciwnym wypadku zwraca false.
     virtual bool execute(Position &pos, const std::vector<std::unique_ptr<Sensor>> &sensors) const = 0;
@@ -19,6 +20,7 @@ public:
 
 class move_forward : public command {
 public:
+    ~move_forward() override = default;
     bool execute(Position &pos, const std::vector<std::unique_ptr<Sensor>> &sensors) const override {
         coordinate_t x = pos.get_x();
         coordinate_t y = pos.get_y();
@@ -52,6 +54,7 @@ public:
 
 class move_backward : public command {
 public:
+    ~move_backward() override = default;
     bool execute(Position &pos, const std::vector<std::unique_ptr<Sensor>> &sensors) const override {
         coordinate_t x = pos.get_x();
         coordinate_t y = pos.get_y();
@@ -85,6 +88,7 @@ public:
 
 class rotate_left : public command {
 public:
+    ~rotate_left() override = default;
     bool execute(Position &pos, [[maybe_unused]] const std::vector<std::unique_ptr<Sensor>> &sensors) const override {
         Direction direction = pos.get_direction();
         switch (direction) {
@@ -112,6 +116,7 @@ public:
 
 class rotate_right : public command {
 public:
+    ~rotate_right() override = default;
     bool execute(Position &pos, [[maybe_unused]] const std::vector<std::unique_ptr<Sensor>> &sensors) const override {
         Direction direction = pos.get_direction();
         switch (direction) {
@@ -141,6 +146,7 @@ class compose : public command {
     std::vector<std::shared_ptr<command>> commands;
 
 public:
+    ~compose() override = default;
     template<typename T>
     requires std::is_base_of_v<command, T>
     compose(const std::initializer_list<T> list) {
@@ -163,4 +169,4 @@ public:
     };
 };
 
-#endif // COMMAND_H
+#endif //COMMAND_H
