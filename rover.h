@@ -29,7 +29,7 @@ private:
 
 public:
     Rover(std::unordered_map<char, std::shared_ptr<command>> c, std::vector<std::unique_ptr<Sensor>> s) :
-        commands(std::move(c)), sensors(std::move(s)), stopped(false), landed(false), position() {}
+        commands(std::move(c)), sensors(std::move(s)), position(), stopped(false), landed(false) {}
 
     void land(std::pair<coordinate_t, coordinate_t> coords , Direction direction) {
         if (landed)
