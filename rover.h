@@ -44,6 +44,8 @@ public:
         if (!landed)
             throw rover_did_not_landed();
 
+        stopped = false;
+
         for (char cmd : s) {
             if (!commands.contains(cmd) || !commands[cmd]->execute(position, sensors)) {
                 stopped = true;
