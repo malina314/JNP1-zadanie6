@@ -137,14 +137,15 @@ public:
 };
 
 class compose : public command {
-    std::vector<std::unique_ptr<command>> commands;
+    std::vector<std::shared_ptr<command>> commands;
 
 public:
-    compose(std::initializer_list<command> list) {
-        for (const auto &cmd : list) {
+    template<typename T>
+    compose(const std::initializer_list<T> list) {
+        for (auto cmd : list) {
             commands.push_back(cmd.clone());
         }
-    };
+    }
 
     bool execute(Position &pos, const std::vector<std::unique_ptr<Sensor>> &sensors) const override {
         for (const auto &command : commands) {
