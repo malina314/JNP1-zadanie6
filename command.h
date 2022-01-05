@@ -12,6 +12,8 @@ public:
     // Funkcja modyfikuje przekazaną pozycję i zwraca true, jeśli żaden z
     // czujników nie wykrył zagrożenia, w przeciwnym wypadku zwraca false.
     virtual bool execute(Position &pos, const std::vector<std::unique_ptr<Sensor>> &sensors) const = 0;
+
+    virtual std::unique_ptr<command> clone() const = 0;
 };
 
 class move_forward : public command {
@@ -41,6 +43,10 @@ public:
         pos.move(x, y);
         return true;
     }
+
+    std::unique_ptr<command> clone() const override {
+        return std::make_unique<move_forward>(*this);
+    };
 };
 
 class move_backward : public command {
@@ -70,11 +76,15 @@ public:
         pos.move(x, y);
         return true;
     }
+
+    std::unique_ptr<command> clone() const override {
+        return std::make_unique<move_backward>(*this);
+    };
 };
 
 class rotate_left : public command {
 public:
-    bool execute(Position &pos, const std::vector<std::unique_ptr<Sensor>> &sensors) const override {
+    bool execute(Position &pos, [[maybe_unused]] const std::vector<std::unique_ptr<Sensor>> &sensors) const override {
         Direction direction = pos.get_direction();
         switch (direction) {
             case Direction::NORTH:
@@ -93,11 +103,15 @@ public:
         pos.rotate(direction);
         return true;
     }
+
+    std::unique_ptr<command> clone() const override {
+        return std::make_unique<rotate_left>(*this);
+    };
 };
 
 class rotate_right : public command {
 public:
-    bool execute(Position &pos, const std::vector<std::unique_ptr<Sensor>> &sensors) const override {
+    bool execute(Position &pos, [[maybe_unused]] const std::vector<std::unique_ptr<Sensor>> &sensors) const override {
         Direction direction = pos.get_direction();
         switch (direction) {
             case Direction::NORTH:
@@ -116,22 +130,34 @@ public:
         pos.rotate(direction);
         return true;
     }
+
+    std::unique_ptr<command> clone() const override {
+        return std::make_unique<rotate_right>(*this);
+    };
 };
 
 class compose : public command {
-    std::vector<command> commands;
+    std::vector<std::unique_ptr<command>> commands;
 
 public:
-    compose(std::initializer_list<command> list) : commands(list) {};
+    compose(std::initializer_list<command> list) {
+        for (const auto &cmd : list) {
+            commands.push_back(cmd.clone());
+        }
+    };
 
     bool execute(Position &pos, const std::vector<std::unique_ptr<Sensor>> &sensors) const override {
         for (const auto &command : commands) {
-            if (!command.execute(pos, sensors)) {
+            if (!command->execute(pos, sensors)) {
                 return false;
             }
         }
         return true;
     }
+
+    std::unique_ptr<command> clone() const override {
+        return std::make_unique<compose>(*this);
+    };
 };
 
 #endif // COMMAND_H
