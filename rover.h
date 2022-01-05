@@ -21,14 +21,14 @@ public:
 
 class Rover {
 private:
-    std::unordered_map<char, std::unique_ptr<command>> commands;
+    std::unordered_map<char, std::shared_ptr<command>> commands;
     std::vector<std::unique_ptr<Sensor>> sensors;
     Position position;
     bool stopped;
     bool landed;
 
 public:
-    Rover(std::unordered_map<char, std::unique_ptr<command>> c, std::vector<std::unique_ptr<Sensor>> s) :
+    Rover(std::unordered_map<char, std::shared_ptr<command>> c, std::vector<std::unique_ptr<Sensor>> s) :
         commands(std::move(c)), sensors(std::move(s)), position(), stopped(false), landed(false) {}
 
     void land(std::pair<coordinate_t, coordinate_t> coords , Direction direction) {
@@ -84,12 +84,12 @@ public:
 
 class RoverBuilder {
 private:
-    std::unordered_map<char, std::unique_ptr<command>> commands;
+    std::unordered_map<char, std::shared_ptr<command>> commands;
     std::vector<std::unique_ptr<Sensor>> sensors;
 
 public:
     RoverBuilder() = default;
-    RoverBuilder(std::unordered_map<char, std::unique_ptr<command>> c, std::vector<std::unique_ptr<Sensor>> s) :
+    RoverBuilder(std::unordered_map<char, std::shared_ptr<command>> c, std::vector<std::unique_ptr<Sensor>> s) :
         commands(std::move(c)), sensors(std::move(s)) {}
 
     RoverBuilder program_command(char chr, const command &cmd) {
