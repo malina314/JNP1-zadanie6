@@ -147,6 +147,9 @@ class compose : public command {
 
 public:
     ~compose() override = default;
+
+    compose() : commands() {}
+
     template<typename T>
     requires std::is_base_of_v<command, T>
     compose(const std::initializer_list<T> list) {
