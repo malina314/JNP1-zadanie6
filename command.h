@@ -8,16 +8,18 @@
 #include <vector>
 #include <type_traits>
 
+// Klasa bazowa w hierarchii komend. Pełni rolę interfejsu.
 class command {
 public:
     virtual ~command() = default;
     
-    // Funkcja modyfikuje przekazaną pozycję i zwraca true, jeśli żaden z
-    // czujników nie wykrył zagrożenia, w przeciwnym wypadku zwraca false.
+    // Metoda modyfikuje przekazaną pozycję i zwraca `true`, jeśli żaden z
+    // czujników nie wykrył zagrożenia, w przeciwnym wypadku zwraca `false`.
     virtual bool execute(Position &pos,
                          const std::vector<std::unique_ptr<Sensor>> &sensors)
                          const = 0;
 
+    // Metoda zwraca unique_ptr na obiekt, na którym została wywołana.
     virtual std::unique_ptr<command> clone() const = 0;
 };
 

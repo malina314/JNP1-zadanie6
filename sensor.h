@@ -3,6 +3,7 @@
 
 #include "position.h"
 
+// Klasa abstrakcyjna stanowiąca interfejs dla sensorów.
 class Sensor {
 public:
     virtual bool is_safe([[maybe_unused]] coordinate_t x,
