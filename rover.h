@@ -1,22 +1,19 @@
 #ifndef ROVER_H
 #define ROVER_H
 
+#include "position.h"
+#include "sensor.h"
+#include "command.h"
 #include <utility>
 #include <vector>
 #include <unordered_map>
 #include <memory>
-#include "position.h"
-#include "sensor.h"
-#include "command.h"
 
 class rover_did_not_landed : public std::exception {
 public:
-    const char* what() const noexcept override {return "rover_did_not_landed";}
-};
-
-class rover_has_already_landed : public std::exception {
-public:
-    const char* what() const noexcept override {return "rover_has_already_landed";}
+    const char* what() const noexcept override {
+        return "rover_did_not_landed";
+    }
 };
 
 class Rover {
@@ -28,13 +25,14 @@ private:
     bool landed;
 
 public:
-    Rover(std::unordered_map<char, std::shared_ptr<command>> c, std::vector<std::unique_ptr<Sensor>> s) :
-        commands(std::move(c)), sensors(std::move(s)), position(), stopped(false), landed(false) {}
+    Rover(std::unordered_map<char, std::shared_ptr<command>> c,
+          std::vector<std::unique_ptr<Sensor>> s) :
+          commands(std::move(c)), sensors(std::move(s)),
+          position(), stopped(false), landed(false) {}
 
-    void land(std::pair<coordinate_t, coordinate_t> coords , Direction direction) {
-        if (landed)
-            throw rover_has_already_landed();
-
+    void land(std::pair<coordinate_t, coordinate_t> coords ,
+              Direction direction) {
+        // Łazik może lądować nieskończenie wiele razy.
         position.move(coords.first, coords.second);
         position.rotate(direction);
         landed = true;
@@ -47,18 +45,20 @@ public:
         stopped = false;
 
         for (char cmd : s) {
-            if (!commands.contains(cmd) || !commands[cmd]->execute(position, sensors)) {
+            if (!commands.contains(cmd) ||
+                !commands[cmd]->execute(position, sensors)) {
                 stopped = true;
                 return;
             }
         }
     }
 
-    friend std::ostream &operator<<(std::ostream& os, const Rover &that) {
+    friend std::ostream &operator<<(std::ostream &os, const Rover &that) {
         if (!that.landed)
             return os << "unknown";
 
-        os << "(" << that.position.get_x() << ", " << that.position.get_y() << ") ";
+        os << "(" << that.position.get_x() << ", "
+           << that.position.get_y() << ") ";
 
         switch (that.position.get_direction()) {
             case Direction::NORTH:
@@ -89,7 +89,9 @@ private:
 
 public:
     RoverBuilder() = default;
-    RoverBuilder(std::unordered_map<char, std::shared_ptr<command>> c, std::vector<std::unique_ptr<Sensor>> s) :
+
+    RoverBuilder(std::unordered_map<char, std::shared_ptr<command>> c,
+                 std::vector<std::unique_ptr<Sensor>> s) :
         commands(std::move(c)), sensors(std::move(s)) {}
 
     RoverBuilder program_command(char chr, const command &cmd) {
