@@ -11,9 +11,12 @@
 class command {
 public:
     virtual ~command() = default;
+    
     // Funkcja modyfikuje przekazaną pozycję i zwraca true, jeśli żaden z
     // czujników nie wykrył zagrożenia, w przeciwnym wypadku zwraca false.
-    virtual bool execute(Position &pos, const std::vector<std::unique_ptr<Sensor>> &sensors) const = 0;
+    virtual bool execute(Position &pos,
+                         const std::vector<std::unique_ptr<Sensor>> &sensors)
+                         const = 0;
 
     virtual std::unique_ptr<command> clone() const = 0;
 };
@@ -21,9 +24,13 @@ public:
 class move_forward : public command {
 public:
     ~move_forward() override = default;
-    bool execute(Position &pos, const std::vector<std::unique_ptr<Sensor>> &sensors) const override {
+    
+    bool execute(Position &pos,
+                 const std::vector<std::unique_ptr<Sensor>> &sensors)
+                 const override {
         coordinate_t x = pos.get_x();
         coordinate_t y = pos.get_y();
+        
         switch (pos.get_direction()) {
             case Direction::NORTH:
                 y++;
@@ -38,11 +45,12 @@ public:
                 x--;
                 break;
         }
+        
         for (auto &&sensor : sensors) {
-            if (!sensor->is_safe(x, y)) {
+            if (!sensor->is_safe(x, y))
                 return false;
-            }
         }
+        
         pos.move(x, y);
         return true;
     }
@@ -55,9 +63,13 @@ public:
 class move_backward : public command {
 public:
     ~move_backward() override = default;
-    bool execute(Position &pos, const std::vector<std::unique_ptr<Sensor>> &sensors) const override {
+    
+    bool execute(Position &pos,
+                 const std::vector<std::unique_ptr<Sensor>> &sensors)
+                 const override {
         coordinate_t x = pos.get_x();
         coordinate_t y = pos.get_y();
+        
         switch (pos.get_direction()) {
             case Direction::NORTH:
                 y--;
@@ -72,11 +84,12 @@ public:
                 x++;
                 break;
         }
+        
         for (auto &&sensor : sensors) {
-            if (!sensor->is_safe(x, y)) {
+            if (!sensor->is_safe(x, y))
                 return false;
-            }
         }
+        
         pos.move(x, y);
         return true;
     }
@@ -89,8 +102,12 @@ public:
 class rotate_left : public command {
 public:
     ~rotate_left() override = default;
-    bool execute(Position &pos, [[maybe_unused]] const std::vector<std::unique_ptr<Sensor>> &sensors) const override {
+    
+    bool execute(Position &pos,
+                 [[maybe_unused]] const std::vector<std::unique_ptr<Sensor>>
+                 &sensors) const override {
         Direction direction = pos.get_direction();
+        
         switch (direction) {
             case Direction::NORTH:
                 direction = Direction::WEST;
@@ -105,6 +122,7 @@ public:
                 direction = Direction::SOUTH;
                 break;
         }
+        
         pos.rotate(direction);
         return true;
     }
@@ -117,8 +135,12 @@ public:
 class rotate_right : public command {
 public:
     ~rotate_right() override = default;
-    bool execute(Position &pos, [[maybe_unused]] const std::vector<std::unique_ptr<Sensor>> &sensors) const override {
+    
+    bool execute(Position &pos,
+                 [[maybe_unused]] const std::vector<std::unique_ptr<Sensor>>
+                 &sensors) const override {
         Direction direction = pos.get_direction();
+        
         switch (direction) {
             case Direction::NORTH:
                 direction = Direction::EAST;
@@ -133,6 +155,7 @@ public:
                 direction = Direction::NORTH;
                 break;
         }
+        
         pos.rotate(direction);
         return true;
     }
@@ -143,6 +166,7 @@ public:
 };
 
 class compose : public command {
+private:
     std::vector<std::shared_ptr<command>> commands;
 
 public:
@@ -153,17 +177,18 @@ public:
     template<typename T>
     requires std::is_base_of_v<command, T>
     compose(const std::initializer_list<T> list) {
-        for (auto cmd : list) {
+        for (auto cmd : list)
             commands.push_back(cmd.clone());
-        }
     }
 
-    bool execute(Position &pos, const std::vector<std::unique_ptr<Sensor>> &sensors) const override {
+    bool execute(Position &pos,
+                 const std::vector<std::unique_ptr<Sensor>> &sensors)
+                 const override {
         for (const auto &command : commands) {
-            if (!command->execute(pos, sensors)) {
+            if (!command->execute(pos, sensors))
                 return false;
-            }
         }
+        
         return true;
     }
 
