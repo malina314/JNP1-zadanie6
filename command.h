@@ -6,7 +6,6 @@
 #include <initializer_list>
 #include <memory>
 #include <vector>
-#include <type_traits>
 
 // Klasa bazowa w hierarchii komend. Pełni rolę interfejsu.
 class command {
@@ -195,9 +194,8 @@ public:
     compose() : commands() {}
 
     compose(const std::initializer_list<std::shared_ptr<command>> list) {
-        for (const auto& cmd : list) {
+        for (const auto& cmd : list)
             commands.push_back(cmd);
-        }
     }
 
     bool execute(Position &pos,
