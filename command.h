@@ -21,6 +21,8 @@ public:
 
     // Metoda zwraca unique_ptr na obiekt, na którym została wywołana.
     virtual std::unique_ptr<command> clone() const = 0;
+
+    virtual operator std::shared_ptr<command>() const = 0;
 };
 
 class move_forward : public command {
@@ -60,6 +62,10 @@ public:
     std::unique_ptr<command> clone() const override {
         return std::make_unique<move_forward>(*this);
     };
+
+    operator std::shared_ptr<command>() const override {
+        return this->clone();
+    }
 };
 
 class move_backward : public command {
@@ -99,6 +105,10 @@ public:
     std::unique_ptr<command> clone() const override {
         return std::make_unique<move_backward>(*this);
     };
+
+    operator std::shared_ptr<command>() const override {
+        return this->clone();
+    }
 };
 
 class rotate_left : public command {
@@ -132,6 +142,10 @@ public:
     std::unique_ptr<command> clone() const override {
         return std::make_unique<rotate_left>(*this);
     };
+
+    operator std::shared_ptr<command>() const override {
+        return this->clone();
+    }
 };
 
 class rotate_right : public command {
@@ -165,6 +179,10 @@ public:
     std::unique_ptr<command> clone() const override {
         return std::make_unique<rotate_right>(*this);
     };
+
+    operator std::shared_ptr<command>() const override {
+        return this->clone();
+    }
 };
 
 class compose : public command {
@@ -176,11 +194,10 @@ public:
 
     compose() : commands() {}
 
-    template<typename T>
-    requires std::is_base_of_v<command, T>
-    compose(const std::initializer_list<T> list) {
-        for (auto cmd : list)
-            commands.push_back(cmd.clone());
+    compose(const std::initializer_list<std::shared_ptr<command>> list) {
+        for (const auto& cmd : list) {
+            commands.push_back(cmd);
+        }
     }
 
     bool execute(Position &pos,
@@ -197,6 +214,10 @@ public:
     std::unique_ptr<command> clone() const override {
         return std::make_unique<compose>(*this);
     };
+
+    operator std::shared_ptr<command>() const override {
+        return this->clone();
+    }
 };
 
 #endif //COMMAND_H
