@@ -36,6 +36,7 @@ public:
         position.move(coords.first, coords.second);
         position.rotate(direction);
         landed = true;
+        stopped = false;
     }
 
     void execute(const std::string &s) {
