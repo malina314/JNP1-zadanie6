@@ -1,0 +1,8 @@
+.idea/
+cmake-build-debug/
+rover_example*.c*
+a*
+*.out
+test*
+*.txt
+*.err
